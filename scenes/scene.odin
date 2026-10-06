@@ -6,6 +6,7 @@ import "../physics"
 
 Overlay :: enum {
 	Velocity, // a line along each point's velocity
+	Strain, // springs coloured by stretch / squash
 }
 
 Overlays :: bit_set[Overlay]
@@ -29,4 +30,4 @@ Scene :: struct {
 	report:           proc(w: ^physics.World) -> string, // --selftest summary
 }
 
-ALL := [?]proc() -> Scene{step1}
+ALL := [?]proc() -> Scene{step1, step2}

@@ -21,6 +21,7 @@ each step adds exactly one idea.
 | Key | Physics file | Scene | Idea | JellyPhysics source |
 |---|---|---|---|---|
 | 1 | `point_mass.odin`, `bounds.odin` | `step1.odin` | point masses, gravity, semi-implicit Euler, fixed timestep | `PointMass.cpp` |
+| 2 | `spring.odin`, `drag.odin` | `step2.odin` | damped Hooke springs, edge vs internal (diagonal) springs | `VectorTools::calculateSpringForce`, `SpringBody.cpp` |
 
 ## Run
 

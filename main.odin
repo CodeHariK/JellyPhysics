@@ -21,6 +21,7 @@ import rl "vendor:raylib"
 
 SELFTEST_FRAMES :: 180 // 3 s
 SELFTEST_POKE_FRAME :: 30 // 0.5 s
+GRAB_RADIUS :: 0.6 // metres
 
 load :: proc(w: ^physics.World, index: int) -> scenes.Scene {
 	scene := scenes.ALL[index]()
@@ -29,9 +30,18 @@ load :: proc(w: ^physics.World, index: int) -> scenes.Scene {
 	return scene
 }
 
-// Click adds a point (in scenes that allow it).
+// Click either adds a point or grabs the nearest one, depending on the scene.
 apply_mouse :: proc(w: ^physics.World, scene: scenes.Scene, cmd: input.Commands) {
-	if cmd.press && scene.click_adds_point do physics.add_point(w, cmd.mouse)
+	w.drag.target = cmd.mouse
+	if cmd.press {
+		if scene.click_adds_point {
+			physics.add_point(w, cmd.mouse)
+		} else {
+			grabbed := physics.nearest_point(w.points[:], cmd.mouse, GRAB_RADIUS)
+			w.drag = {active = grabbed >= 0, point = grabbed, target = cmd.mouse}
+		}
+	}
+	if cmd.release do w.drag.active = false
 }
 
 // `--selftest N`: returns whether to self-test and which scene (default: the latest).
