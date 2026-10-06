@@ -1,0 +1,5 @@
+selftest.png
+*.bin
+/jelly
+/JellyPhysics
+.DS_Store
