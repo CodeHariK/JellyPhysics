@@ -34,6 +34,7 @@ apply_air_drag :: proc(points: []PointMass, drag: f32) {
 
 integrate :: proc(points: []PointMass, dt: f32) {
 	for &p in points {
+		if p.mass == 0 do continue // static (step 5): never moves
 		p.velocity += p.force / p.mass * dt
 		p.position += p.velocity * dt
 	}

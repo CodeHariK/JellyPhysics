@@ -9,6 +9,9 @@ Settings :: struct {
 	shape_matching:           bool, // step 3
 	shape_k, shape_damping:   f32,
 	air_drag:                 f32, // step 4: fraction of velocity lost per step (0 = none)
+	collisions:               bool, // step 5: body vs body
+	elasticity:               f32, // step 5: bounce between bodies (0 = none, 1 = full)
+	contact_friction:         f32, // step 5: share of sliding speed removed per contact
 	restitution, friction:    f32, // step 1 (world box)
 }
 
@@ -16,6 +19,7 @@ World :: struct {
 	points:   [dynamic]PointMass,
 	springs:  [dynamic]Spring,
 	bodies:   [dynamic]ShapeBody,
+	contacts: [dynamic]Contact, // step 5: found in the last step
 	drag:     Drag,
 	settings: Settings,
 }
@@ -29,6 +33,7 @@ clear_world :: proc(w: ^World) {
 	clear(&w.points)
 	clear(&w.springs)
 	clear(&w.bodies)
+	clear(&w.contacts)
 	w.drag = {}
 	w.settings = {}
 }
@@ -37,6 +42,7 @@ destroy_world :: proc(w: ^World) {
 	delete(w.points)
 	delete(w.springs)
 	delete(w.bodies)
+	delete(w.contacts)
 }
 
 step :: proc(w: ^World, dt: f32) {
@@ -52,5 +58,6 @@ step :: proc(w: ^World, dt: f32) {
 	apply_drag(w.drag, w.points[:])
 	integrate(w.points[:], dt) // step 1
 	apply_air_drag(w.points[:], s.air_drag) // step 4
+	if s.collisions do collide_bodies(w) // step 5
 	collide_bounds(w.points[:], s.restitution, s.friction)
 }

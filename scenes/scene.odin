@@ -9,6 +9,7 @@ Overlay :: enum {
 	Strain, // springs coloured by stretch / squash
 	Ghost, // shape-matching targets
 	Pressure, // pressure push on each point
+	Contacts, // points inside another body + their push-out normal
 }
 
 Overlays :: bit_set[Overlay]
@@ -32,4 +33,4 @@ Scene :: struct {
 	report:           proc(w: ^physics.World) -> string, // --selftest summary
 }
 
-ALL := [?]proc() -> Scene{step1, step2, step3, step4}
+ALL := [?]proc() -> Scene{step1, step2, step3, step4, step5}

@@ -8,11 +8,13 @@ import rl "vendor:raylib"
 
 BACKGROUND :: rl.Color{235, 245, 255, 255}
 GHOST :: rl.Color{150, 160, 180, 255}
+STATIC :: rl.Color{110, 115, 125, 255}
 POINT_RADIUS :: 7
 
 draw_world :: proc(w: ^physics.World, overlays: scenes.Overlays) {
 	rl.ClearBackground(BACKGROUND)
 	line({0, 0}, {physics.WORLD_WIDTH, 0}, 3, rl.DARKGRAY) // floor
+	for b in w.bodies do if physics.is_static(w, b) do fill_body(b, physics.body_points(w, b), STATIC)
 	if .Ghost in overlays && w.settings.shape_matching {
 		for b in w.bodies do draw_ghost(b, physics.body_points(w, b))
 	}
@@ -27,6 +29,23 @@ draw_world :: proc(w: ^physics.World, overlays: scenes.Overlays) {
 	for p in w.points {
 		if .Velocity in overlays do line(p.position, p.position + p.velocity * 0.15, 2, rl.ORANGE)
 		rl.DrawCircleV(camera.to_screen(p.position), POINT_RADIUS, rl.MAROON)
+	}
+	if .Contacts in overlays {
+		for c in w.contacts {
+			p := w.points[c.point].position
+			rl.DrawCircleV(camera.to_screen(p), POINT_RADIUS - 2, rl.RED)
+			line(p, p + c.normal * 0.4, 2, rl.RED)
+		}
+	}
+}
+
+// Fan of triangles from the body's centre (fine for the convex-ish bodies used here).
+fill_body :: proc(b: physics.ShapeBody, points: []physics.PointMass, color: rl.Color) {
+	c := camera.to_screen(b.center)
+	for i in 0 ..< b.count {
+		a := camera.to_screen(points[i].position)
+		n := camera.to_screen(points[(i + 1) % b.count].position)
+		rl.DrawTriangle(c, a, n, color)
 	}
 }
 
@@ -56,11 +75,6 @@ draw_ghost :: proc(b: physics.ShapeBody, points: []physics.PointMass) {
 draw_pressure :: proc(b: physics.ShapeBody, points: []physics.PointMass) {
 	GAS :: rl.Color{120, 170, 255, 70}
 	PUSH_SCALE :: 0.01 // metres of arrow per newton
-	c := camera.to_screen(b.center)
-	for i in 0 ..< b.count {
-		a := camera.to_screen(points[i].position)
-		n := camera.to_screen(points[(i + 1) % b.count].position)
-		rl.DrawTriangle(c, a, n, GAS)
-	}
+	fill_body(b, points, GAS)
 	for p, i in points do line(p.position, p.position + b.push[i] * PUSH_SCALE, 2, rl.BLUE)
 }

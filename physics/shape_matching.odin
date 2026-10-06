@@ -32,11 +32,12 @@ ShapeBody :: struct {
 	gas:          f32, // step 4: 0 = no pressure (see pressure.odin)
 	area:         f32, // step 4: derived every step
 	push:         [MAX_BODY_POINTS]Vec2, // step 4: pressure force on each point
+	aabb:         AABB, // step 5: bounding box, updated every step
 }
 
 // Adds a closed ring of points (counter-clockwise, local coords) joined by edge springs.
-// Returns the body's index in World.bodies.
-add_body :: proc(w: ^World, shape: []Vec2, origin: Vec2, gas := f32(0)) -> int {
+// mass = 0 makes a static body (step 5). Returns the body's index in World.bodies.
+add_body :: proc(w: ^World, shape: []Vec2, origin: Vec2, gas := f32(0), mass := f32(1)) -> int {
 	assert(len(shape) <= MAX_BODY_POINTS)
 	body := ShapeBody{first = len(w.points), count = len(shape), gas = gas}
 	centroid: Vec2
@@ -44,7 +45,7 @@ add_body :: proc(w: ^World, shape: []Vec2, origin: Vec2, gas := f32(0)) -> int {
 	centroid /= f32(len(shape))
 	for p, i in shape {
 		body.rest[i] = p - centroid
-		add_point(w, origin + p)
+		add_point(w, origin + p, mass = mass)
 	}
 	for i in 0 ..< body.count do add_spring(w, body.first + i, body.first + (i + 1) % body.count)
 	append(&w.bodies, body)
