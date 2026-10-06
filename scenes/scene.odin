@@ -10,6 +10,7 @@ Overlay :: enum {
 	Ghost, // shape-matching targets
 	Pressure, // pressure push on each point
 	Contacts, // points inside another body + their push-out normal
+	Joints, // chassis-to-tyre joints and a spoke showing each tyre's spin
 }
 
 Overlays :: bit_set[Overlay]
@@ -29,8 +30,9 @@ Scene :: struct {
 	actions:          []Action,
 	setup:            proc(w: ^physics.World),
 	status:           proc(w: ^physics.World) -> string, // optional live status line
+	drive:            proc(w: ^physics.World, throttle: f32), // optional: arrow keys, -1 .. +1
 	selftest_poke:    proc(w: ^physics.World), // optional: disturbance applied in --selftest
 	report:           proc(w: ^physics.World) -> string, // --selftest summary
 }
 
-ALL := [?]proc() -> Scene{step1, step2, step3, step4, step5}
+ALL := [?]proc() -> Scene{step1, step2, step3, step4, step5, step6}

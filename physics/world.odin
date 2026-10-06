@@ -20,6 +20,7 @@ World :: struct {
 	springs:  [dynamic]Spring,
 	bodies:   [dynamic]ShapeBody,
 	contacts: [dynamic]Contact, // step 5: found in the last step
+	joints:   [dynamic]BodyJoint, // step 6
 	drag:     Drag,
 	settings: Settings,
 }
@@ -34,6 +35,7 @@ clear_world :: proc(w: ^World) {
 	clear(&w.springs)
 	clear(&w.bodies)
 	clear(&w.contacts)
+	clear(&w.joints)
 	w.drag = {}
 	w.settings = {}
 }
@@ -43,6 +45,7 @@ destroy_world :: proc(w: ^World) {
 	delete(w.springs)
 	delete(w.bodies)
 	delete(w.contacts)
+	delete(w.joints)
 }
 
 step :: proc(w: ^World, dt: f32) {
@@ -54,7 +57,9 @@ step :: proc(w: ^World, dt: f32) {
 		derive_frame(&b, points)
 		if s.shape_matching do apply_shape_matching(&b, points, s.shape_k, s.shape_damping)
 		if b.gas > 0 do apply_pressure(&b, points) // step 4
+		if b.torque != 0 do apply_torque(b, points) // step 6
 	}
+	for j in w.joints do apply_joint(w, j) // step 6
 	apply_drag(w.drag, w.points[:])
 	integrate(w.points[:], dt) // step 1
 	apply_air_drag(w.points[:], s.air_drag) // step 4

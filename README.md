@@ -25,6 +25,7 @@ each step adds exactly one idea.
 | 3 | `shape_matching.odin` | `step3.odin` | derive centre + angle, spring points to the rotated rest shape | `Body::derivePositionAndAngle`, `SpringBody::accumulateInternalForces` |
 | 4 | `pressure.odin` | `step4.odin` | gas pressure (gas / area) pushing edges outward; per-step air drag | `PressureBody::accumulateInternalForces`, `Body::dampenVelocity` |
 | 5 | `collision.odin` | `step5.odin` | AABB broad phase, point-in-polygon, closest edge, push-out + bounce + friction; static bodies (mass 0) | `World::bodyCollide`, `World::_handleCollisions` |
+| 6 | `joint.odin` | `step6.odin` | jelly car: chassis-to-tyre-centre spring joints, tyre torque with a top speed, collision groups; arrow keys drive | JellyCar `Car::update`, `Tire::accumulateExternalForces` |
 
 ## Run
 

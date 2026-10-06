@@ -33,6 +33,9 @@ ShapeBody :: struct {
 	area:         f32, // step 4: derived every step
 	push:         [MAX_BODY_POINTS]Vec2, // step 4: pressure force on each point
 	aabb:         AABB, // step 5: bounding box, updated every step
+	group:        int, // step 6: bodies sharing a non-zero group don't collide (one car's parts)
+	torque:       f32, // step 6: spin force on each point (see joint.odin)
+	max_spin:     f32, // step 6: surface speed (m/s) where the torque fades to 0
 }
 
 // Adds a closed ring of points (counter-clockwise, local coords) joined by edge springs.

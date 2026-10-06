@@ -30,6 +30,13 @@ draw_world :: proc(w: ^physics.World, overlays: scenes.Overlays) {
 		if .Velocity in overlays do line(p.position, p.position + p.velocity * 0.15, 2, rl.ORANGE)
 		rl.DrawCircleV(camera.to_screen(p.position), POINT_RADIUS, rl.MAROON)
 	}
+	if .Joints in overlays {
+		for j in w.joints {
+			tyre := w.bodies[j.body]
+			line(w.points[j.point].position, tyre.center, 3, rl.ORANGE) // suspension
+			line(tyre.center, w.points[tyre.first].position, 2, rl.DARKBLUE) // spoke: shows the spin
+		}
+	}
 	if .Contacts in overlays {
 		for c in w.contacts {
 			p := w.points[c.point].position

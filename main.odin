@@ -76,6 +76,7 @@ main :: proc() {
 		if cmd.toggle_pause do paused = !paused
 		if cmd.action >= 0 do scene.actions[cmd.action].run(&world)
 		apply_mouse(&world, scene, cmd)
+		if scene.drive != nil do scene.drive(&world, self_test ? 1 : cmd.throttle) // selftest: full throttle
 		if self_test && frame == SELFTEST_POKE_FRAME && scene.selftest_poke != nil do scene.selftest_poke(&world)
 
 		// Fixed timestep: step the physics in STEP-sized slices, however long the frame was.

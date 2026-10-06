@@ -15,6 +15,7 @@ Commands :: struct {
 	press:        bool, // left mouse went down this frame
 	release:      bool, // left mouse went up this frame
 	action:       int, // index into scene.actions, else -1
+	throttle:     f32, // held arrow keys: -1 (left) .. +1 (right)
 }
 
 poll :: proc(scene: scenes.Scene, scene_count: int) -> Commands {
@@ -27,6 +28,8 @@ poll :: proc(scene: scenes.Scene, scene_count: int) -> Commands {
 		release      = rl.IsMouseButtonReleased(.LEFT),
 		action       = -1,
 	}
+	if rl.IsKeyDown(.RIGHT) do c.throttle += 1
+	if rl.IsKeyDown(.LEFT) do c.throttle -= 1
 	for i in 0 ..< scene_count {
 		if rl.IsKeyPressed(rl.KeyboardKey(int(rl.KeyboardKey.ONE) + i)) do c.select_scene = i
 	}

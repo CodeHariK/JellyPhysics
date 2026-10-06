@@ -89,6 +89,7 @@ find_contacts :: proc(w: ^World) {
 		for b, bi in w.bodies {
 			if ai == bi || !aabb_overlap(a.aabb, b.aabb) do continue
 			if is_static(w, a) && is_static(w, b) do continue
+			if a.group != 0 && a.group == b.group do continue // step 6: parts of one car
 			ring := body_points(w, b)
 			for i in a.first ..< a.first + a.count {
 				p := w.points[i].position

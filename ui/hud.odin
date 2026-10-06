@@ -28,6 +28,7 @@ draw_hud :: proc(scene: scenes.Scene, w: ^physics.World, scene_count: int, pause
 controls_line :: proc(scene: scenes.Scene, w: ^physics.World) -> string {
 	b := strings.builder_make(context.temp_allocator)
 	if scene.status != nil do fmt.sbprintf(&b, "%s   ", scene.status(w))
+	if scene.drive != nil do fmt.sbprint(&b, "Left/Right: drive   ")
 	fmt.sbprint(&b, scene.click_adds_point ? "click: add point" : "drag points")
 	for a in scene.actions do fmt.sbprintf(&b, "   %r: %s", a.key, a.label)
 	return strings.to_string(b)
