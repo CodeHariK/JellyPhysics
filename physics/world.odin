@@ -8,6 +8,7 @@ Settings :: struct {
 	spring_k, spring_damping: f32, // step 2
 	shape_matching:           bool, // step 3
 	shape_k, shape_damping:   f32,
+	air_drag:                 f32, // step 4: fraction of velocity lost per step (0 = none)
 	restitution, friction:    f32, // step 1 (world box)
 }
 
@@ -46,8 +47,10 @@ step :: proc(w: ^World, dt: f32) {
 		points := body_points(w, b)
 		derive_frame(&b, points)
 		if s.shape_matching do apply_shape_matching(&b, points, s.shape_k, s.shape_damping)
+		if b.gas > 0 do apply_pressure(&b, points) // step 4
 	}
 	apply_drag(w.drag, w.points[:])
 	integrate(w.points[:], dt) // step 1
+	apply_air_drag(w.points[:], s.air_drag) // step 4
 	collide_bounds(w.points[:], s.restitution, s.friction)
 }

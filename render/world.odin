@@ -16,6 +16,9 @@ draw_world :: proc(w: ^physics.World, overlays: scenes.Overlays) {
 	if .Ghost in overlays && w.settings.shape_matching {
 		for b in w.bodies do draw_ghost(b, physics.body_points(w, b))
 	}
+	if .Pressure in overlays {
+		for b in w.bodies do if b.gas > 0 do draw_pressure(b, physics.body_points(w, b))
+	}
 	for s in w.springs {
 		color := .Strain in overlays ? strain_color(w.points[:], s) : rl.GRAY
 		line(w.points[s.a].position, w.points[s.b].position, 3, color)
@@ -47,4 +50,17 @@ draw_ghost :: proc(b: physics.ShapeBody, points: []physics.PointMass) {
 	}
 	rl.DrawCircleV(camera.to_screen(b.center), 4, rl.DARKBLUE)
 	line(b.center, b.center + physics.rotate({0.6, 0}, b.angle), 2, rl.DARKBLUE)
+}
+
+// The gas: a tinted fill (fan from the centre) plus an arrow for the push on each point.
+draw_pressure :: proc(b: physics.ShapeBody, points: []physics.PointMass) {
+	GAS :: rl.Color{120, 170, 255, 70}
+	PUSH_SCALE :: 0.01 // metres of arrow per newton
+	c := camera.to_screen(b.center)
+	for i in 0 ..< b.count {
+		a := camera.to_screen(points[i].position)
+		n := camera.to_screen(points[(i + 1) % b.count].position)
+		rl.DrawTriangle(c, a, n, GAS)
+	}
+	for p, i in points do line(p.position, p.position + b.push[i] * PUSH_SCALE, 2, rl.BLUE)
 }

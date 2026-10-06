@@ -25,6 +25,13 @@ apply_gravity :: proc(points: []PointMass) {
 	for &p in points do p.force = GRAVITY * p.mass
 }
 
+// Step 4: a tiny drag on every point, every step (velocity *= 1 - drag). Springs only damp
+// motion along themselves, so some wobbles (a balloon breathing in and out) never die without
+// it. JellyPhysics: Body::dampenVelocity (velocity *= 0.999 per step).
+apply_air_drag :: proc(points: []PointMass, drag: f32) {
+	for &p in points do p.velocity *= 1 - drag
+}
+
 integrate :: proc(points: []PointMass, dt: f32) {
 	for &p in points {
 		p.velocity += p.force / p.mass * dt

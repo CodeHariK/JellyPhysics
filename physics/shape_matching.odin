@@ -29,12 +29,16 @@ ShapeBody :: struct {
 	center:       Vec2, // derived every step
 	angle:        f32,
 	target:       [MAX_BODY_POINTS]Vec2, // rest shape placed at center + angle
+	gas:          f32, // step 4: 0 = no pressure (see pressure.odin)
+	area:         f32, // step 4: derived every step
+	push:         [MAX_BODY_POINTS]Vec2, // step 4: pressure force on each point
 }
 
 // Adds a closed ring of points (counter-clockwise, local coords) joined by edge springs.
-add_body :: proc(w: ^World, shape: []Vec2, origin: Vec2) {
+// Returns the body's index in World.bodies.
+add_body :: proc(w: ^World, shape: []Vec2, origin: Vec2, gas := f32(0)) -> int {
 	assert(len(shape) <= MAX_BODY_POINTS)
-	body := ShapeBody{first = len(w.points), count = len(shape)}
+	body := ShapeBody{first = len(w.points), count = len(shape), gas = gas}
 	centroid: Vec2
 	for p in shape do centroid += p
 	centroid /= f32(len(shape))
@@ -44,6 +48,7 @@ add_body :: proc(w: ^World, shape: []Vec2, origin: Vec2) {
 	}
 	for i in 0 ..< body.count do add_spring(w, body.first + i, body.first + (i + 1) % body.count)
 	append(&w.bodies, body)
+	return len(w.bodies) - 1
 }
 
 body_points :: proc(w: ^World, b: ShapeBody) -> []PointMass {
